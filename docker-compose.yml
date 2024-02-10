@@ -1,0 +1,58 @@
+# Use root/example as user/password credentials
+version: '3.1'
+
+services:
+
+  # My SQL
+  mysql:
+    image: mysql
+    restart: always
+    container_name: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    ports:
+      - "3306:3306"
+
+  # Zipkin - Distributed tracing
+  zipkin:
+    container_name: zipkin
+    image: openzipkin/zipkin
+    extra_hosts: [ 'host.docker.internal:host-gateway' ]
+    restart: always
+    ports:
+      - "9411:9411"
+
+  # prometheus
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    extra_hosts: [ 'host.docker.internal:host-gateway' ]
+    restart: always
+    command:
+      - --enable-feature=exemplar-storage
+      - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+      - ./docker/config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+
+  # Grafana
+  grafana:
+      image: grafana/grafana
+      container_name: grafana
+      extra_hosts: [ 'host.docker.internal:host-gateway' ]
+      restart: always
+      environment:
+        - GF_AUTH_ANONYMOUS_ENABLED=true
+        - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+        - GF_AUTH_DISABLE_LOGIN_FORM=true
+      volumes:
+        - ./docker/config/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+        - ./docker/config/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      ports:
+        - "3000:3000"
+
+  # Zipkin: http://localhost:9411/zipkin/
+  # Prometheus: http://localhost:9090/
+  # Grafana: http://localhost:3000/
