@@ -2,7 +2,6 @@
 version: '3.1'
 
 services:
-
   # My SQL
   mysql:
     image: mysql
@@ -13,7 +12,6 @@ services:
       - MYSQL_ROOT_PASSWORD=root
     ports:
       - "3306:3306"
-
   # Zipkin - Distributed tracing
   zipkin:
     container_name: zipkin
@@ -22,7 +20,6 @@ services:
     restart: always
     ports:
       - "9411:9411"
-
   # prometheus
   prometheus:
     image: prom/prometheus
@@ -36,7 +33,6 @@ services:
       - ./docker/config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     ports:
       - "9090:9090"
-
   # Grafana
   grafana:
       image: grafana/grafana
